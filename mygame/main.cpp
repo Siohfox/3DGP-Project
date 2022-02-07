@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-// Github Test
+// Github Test 2
 
 // Input file to return it as a string
 std::string getFileCode(std::string fileName)
