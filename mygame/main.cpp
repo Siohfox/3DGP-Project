@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 
+// Github Test
+
 // Input file to return it as a string
 std::string getFileCode(std::string fileName)
 {
