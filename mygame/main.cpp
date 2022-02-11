@@ -12,7 +12,6 @@
 #include <iostream>
 #include <string>
 
-// Github Test 2
 
 // Input file to return it as a string
 std::string getFileCode(std::string fileName)
@@ -59,6 +58,7 @@ int main()
 	  0.5f, -0.5f, 0.0f
 	};
 
+	// RGBA - Vector 4
 	const GLfloat colours[] = {
 	  1.0f, 0.0f, 0.0f, 1.0f,
 	  0.0f, 1.0f, 0.0f, 1.0f,
