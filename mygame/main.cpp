@@ -1,11 +1,13 @@
-// Tell system that SDL is already handled
+// Tell system that SDL and STB IMAGE is already handled
 #define SDL_MAIN_HANDLED
+#define STB_IMAGE_IMPLEMENTATION
 
 // Graphics libraries
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <stb_image.h>
 
 // System libraries
 #include <stdexcept>
@@ -220,6 +222,65 @@ int main()
 
 	SDL_GetWindowSize(window, &width, &height);
 
+	
+
+		/*
+			Loading system data
+		*/
+
+	// Define width and height
+	int w = 0;
+	int h = 0;
+
+	unsigned char* data = stbi_load("image.png", &w, &h, NULL, 4);
+
+	if (!data)
+	{
+		std::cout << "ERROR: No image data found" << std::endl;
+		throw std::exception("No image data");
+	}
+
+
+		/*
+			Uploading to graphics card
+		*/
+
+
+	// Create a texture
+	GLuint textureId = 0;
+	glGenTextures(1, &textureId);
+
+	if (!textureId)
+	{
+		std::cout << "ERROR: No texture ID found" << std::endl;
+		throw std::exception();
+	}
+
+	// Bind the texture to GPU
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+
+	// Upload the image data to the bound texyture unit in the GPU
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+	// Free the loaded data because it's copied to gpu now
+	free(data);
+
+	// Generate Mipmap so the texture can be mapped correctly
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// Unbind the texture because we're done with it
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
+
+
+
+
+
+	// MAIN LOOP
+
 	bool quit = false;
 
 	while (!quit)
@@ -246,7 +307,7 @@ int main()
 		// Prepare the model matrix
 		glm::mat4 model(1.0f);
 		model = glm::translate(model, glm::vec3(0, 0, -2.5f));
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(1, 1, 1));
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(0, 1, 0));
 
 		// Increase the float angle so next frame the triangle rotates further
 		angle += 1.0f;
@@ -287,8 +348,6 @@ int main()
 			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
 				glm::value_ptr(projection));
 
-			// Draw shape as before
-
 		// ======================================= SUBMIT FOR DRAWING ======================================
 		
 		// Draw 3 vertices (a triangle)
@@ -298,6 +357,7 @@ int main()
 		glBindVertexArray(0);
 		glUseProgram(0);
 
+		// This function just updates the window
 		SDL_GL_SwapWindow(window);
 	}
 	return 0;
