@@ -339,7 +339,7 @@ int main()
 		}
 
 		// Clear black
-		glClearColor(1, 0, 0, 1);
+		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Update buffers
 
@@ -361,6 +361,9 @@ int main()
 		glUseProgram(programId);
 		glBindVertexArray(vaoId);
 		glBindTexture(GL_TEXTURE_2D, textureId);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// Upload the model matrix
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -396,8 +399,10 @@ int main()
 		
 		// Draw 3 vertices (a triangle)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
