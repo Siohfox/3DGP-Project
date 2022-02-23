@@ -57,9 +57,23 @@ int main()
 
 	// ======================================= Preparing the Primitive Shape Data ======================================
 	const GLfloat positions[] = {
-	  0.0f, 0.5f, 0.0f,
+	  -0.5f, 0.5f, 0.0f,
 	  -0.5f, -0.5f, 0.0f,
-	  0.5f, -0.5f, 0.0f
+	  0.5f, -0.5f, 0.0f,
+
+	   0.5f, -0.5f, 0.0f,
+	  0.5f, 0.5f, 0.0f,
+	  -0.5f, 0.5f, 0.0f
+	};
+
+	const GLfloat texCoords[] = {
+	  0.0f, 0.0f,
+	  0.0f, 1.0f,
+	  1.0f, 1.0f,
+
+	  1.0f, 1.0f,
+	  1.0f, 0.0f,
+	  0.0f, 0.0f
 	};
 
 	// RGBA - Vector 4
@@ -115,6 +129,27 @@ int main()
 			Create the vertex array and assign positions and colours
 		*/
 
+
+	GLuint texCoordsVboID = 0;
+
+	// Create a new VBO on the GPU and bind it
+	glGenBuffers(1, &texCoordsVboID);
+
+	if (!texCoordsVboID)
+	{
+		throw std::exception();
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, texCoordsVboID);
+
+	// Upload a copy of the data from memory into the new VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+
+	// Reset the state
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+
 	GLuint vaoId = 0;
 
 	// Create a new VAO on the GPU and bind it
@@ -144,6 +179,14 @@ int main()
 		4 * sizeof(GLfloat), (void*)0);
 
 	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, texCoordsVboID);
+
+	// This is where it's attached to the vertex array buffer
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+		2 * sizeof(GLfloat), (void*)0);
+
+	glEnableVertexAttribArray(2);
 
 	// Reset the state
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -194,7 +237,7 @@ int main()
 	// during the link.
 	glBindAttribLocation(programId, 0, "a_Position");
 
-	glBindAttribLocation(programId, 1, "a_Colour");
+	glBindAttribLocation(programId, 2, "a_TexCoord");
 
 	// Perform the link and check for failure
 	glLinkProgram(programId);
@@ -295,8 +338,8 @@ int main()
 			}
 		}
 
-		// Clear red
-		glClearColor(0, 0, 0, 1);
+		// Clear black
+		glClearColor(1, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Update buffers
 
@@ -317,6 +360,7 @@ int main()
 		// Instruct OpenGL to use our shader program and our VAO
 		glUseProgram(programId);
 		glBindVertexArray(vaoId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 
 		// Upload the model matrix
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -325,8 +369,8 @@ int main()
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
 		glm::value_ptr(projection));
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Shape 2
 
@@ -351,7 +395,8 @@ int main()
 		// ======================================= SUBMIT FOR DRAWING ======================================
 		
 		// Draw 3 vertices (a triangle)
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Reset the state
 		glBindVertexArray(0);
