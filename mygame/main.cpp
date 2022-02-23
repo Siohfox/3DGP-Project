@@ -2,8 +2,10 @@
 #define SDL_MAIN_HANDLED
 
 // Graphics libraries
-#include "SDL2/SDL.h"
-#include "GL/glew.h"
+#include <SDL2/SDL.h>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 // System libraries
 #include <stdexcept>
@@ -25,7 +27,7 @@ std::string getFileCode(std::string fileName)
 		{
 			std::cout << line << '\n';
 
-			fileContent += line;
+			fileContent += line + "\n";
 		}
 
 		myfile.close();
@@ -65,6 +67,11 @@ int main()
 	  0.0f, 0.0f, 1.0f, 1.0f,
 	};
 
+
+	/*
+		Create and populate positions buffer
+	*/
+
 	GLuint positionsVboId = 0;
 
 	// Create a new VBO on the GPU and bind it
@@ -83,32 +90,9 @@ int main()
 	// Reset the state
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	GLuint vaoId = 0;
-
-	// Create a new VAO on the GPU and bind it
-	glGenVertexArrays(1, &vaoId);
-
-	if (!vaoId)
-	{
-		throw std::exception();
-	}
-
-	glBindVertexArray(vaoId);
-
-	// Bind the position VBO, assign it to position 0 on the bound VAO
-	// and flag it to be used
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		3 * sizeof(GLfloat), (void*)0);
-
-	glEnableVertexAttribArray(0);
-
-	// Reset the state
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-
-	// COLOURS
+	/*
+		Create and populate colours buffer
+	*/
 
 	GLuint coloursVboId = 0;
 
@@ -125,6 +109,35 @@ int main()
 	// Upload a copy of the data from memory into the new VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
 
+		/*
+			Create the vertex array and assign positions and colours
+		*/
+
+	GLuint vaoId = 0;
+
+	// Create a new VAO on the GPU and bind it
+	glGenVertexArrays(1, &vaoId);
+
+	if (!vaoId)
+	{
+		throw std::exception();
+	}
+
+	glBindVertexArray(vaoId);
+
+	// Bind the position VBO, assign it to position 0 on the bound VAO
+	// and flag it to be used
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
+
+	// This is where it's attached to the vertex array buffer
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+		3 * sizeof(GLfloat), (void*)0);
+
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, coloursVboId);
+
+	// This is where it's attached to the vertex array buffer
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE,
 		4 * sizeof(GLfloat), (void*)0);
 
@@ -145,6 +158,8 @@ int main()
 	glCompileShader(vertexShaderId);
 	GLint success = 0;
 	glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &success);
+
+
 
 	if (!success)
 	{
@@ -171,11 +186,13 @@ int main()
 	glAttachShader(programId, vertexShaderId);
 	glAttachShader(programId, fragmentShaderId);
 
+	
+
 	// Ensure the VAO "position" attribute stream gets set as the first position
 	// during the link.
-	glBindAttribLocation(programId, 0, "in_Position");
+	glBindAttribLocation(programId, 0, "a_Position");
 
-	glBindAttribLocation(programId, 1, "in_Colour");
+	glBindAttribLocation(programId, 1, "a_Colour");
 
 	// Perform the link and check for failure
 	glLinkProgram(programId);
@@ -194,7 +211,14 @@ int main()
 	glDeleteShader(fragmentShaderId);
 
 
+	GLint modelLoc = glGetUniformLocation(programId, "u_Model");
+	GLint projectionLoc = glGetUniformLocation(programId, "u_Projection");
 
+	float angle = 0;
+	int width = 0;
+	int height = 0;
+
+	SDL_GetWindowSize(window, &width, &height);
 
 	bool quit = false;
 
@@ -211,15 +235,62 @@ int main()
 		}
 
 		// Clear red
-		glClearColor(1, 0, 0, 1);
+		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Update buffers
 
-		// ======================================= SUBMIT FOR DRAWING ======================================
+		// Prepare the perspective projection matrix
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+			(float)600 / (float)600, 0.1f, 100.f);
+
+		// Prepare the model matrix
+		glm::mat4 model(1.0f);
+		model = glm::translate(model, glm::vec3(0, 0, -2.5f));
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(1, 1, 1));
+
+		// Increase the float angle so next frame the triangle rotates further
+		angle += 1.0f;
+
+		// Make sure the current program is bound
+#
 		// Instruct OpenGL to use our shader program and our VAO
 		glUseProgram(programId);
 		glBindVertexArray(vaoId);
 
+		// Upload the model matrix
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		// Upload the projection matrix
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
+		glm::value_ptr(projection));
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		// Shape 2
+
+		// Prepare the orthographic projection matrix (reusing the variable)
+		projection = glm::ortho(0.0f, (float)600, 0.0f,
+			(float)600, 0.0f, 1.0f);
+
+			// Prepare model matrix. The scale is important because now our triangle
+			// would be the size of a single pixel when mapped to an orthographic
+			// projection.
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(100, 600 - 100, 0));
+			model = glm::scale(model, glm::vec3(100, 100, 1));
+
+			// Upload the model matrix
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			// Upload the projection matrix
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
+				glm::value_ptr(projection));
+
+			// Draw shape as before
+
+		// ======================================= SUBMIT FOR DRAWING ======================================
+		
 		// Draw 3 vertices (a triangle)
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
