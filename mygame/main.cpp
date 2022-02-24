@@ -37,12 +37,10 @@ std::string getFileCode(std::string fileName)
 	return fileContent;
 }
 
-int main()
+SDL_Window* renderWindow() 
 {
-
-	// ======================================= WINDOW RENDER STUFF ======================================
-
-	SDL_Window* window = SDL_CreateWindow("OpenGL Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	int w = 800, h = 600;
+	SDL_Window* window = SDL_CreateWindow("OpenGL Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
 	if (!SDL_GL_CreateContext(window))
 	{
@@ -55,101 +53,11 @@ int main()
 		throw std::runtime_error("Failed to create OpenGL context");
 	}
 
-	// ======================================= Preparing the Primitive Shape Data ======================================
-	const GLfloat positions[] = {
-	  -0.5f, 0.5f, 0.0f,
-	  -0.5f, -0.5f, 0.0f,
-	  0.5f, -0.5f, 0.0f,
+	return window;
+}
 
-	   0.5f, -0.5f, 0.0f,
-	  0.5f, 0.5f, 0.0f,
-	  -0.5f, 0.5f, 0.0f
-	};
-
-	const GLfloat texCoords[] = {
-	  0.0f, 0.0f,
-	  0.0f, 1.0f,
-	  1.0f, 1.0f,
-
-	  1.0f, 1.0f,
-	  1.0f, 0.0f,
-	  0.0f, 0.0f
-	};
-
-	// RGBA - Vector 4
-	const GLfloat colours[] = {
-	  1.0f, 0.0f, 0.0f, 1.0f,
-	  0.0f, 1.0f, 0.0f, 1.0f,
-	  0.0f, 0.0f, 1.0f, 1.0f,
-	};
-
-
-	/*
-		Create and populate positions buffer
-	*/
-
-	GLuint positionsVboId = 0;
-
-	// Create a new VBO on the GPU and bind it
-	glGenBuffers(1, &positionsVboId);
-
-	if (!positionsVboId)
-	{
-		throw std::exception();
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
-
-	// Upload a copy of the data from memory into the new VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-
-	// Reset the state
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	/*
-		Create and populate colours buffer
-	*/
-
-	GLuint coloursVboId = 0;
-
-	// Create a new VBO on the GPU and bind it
-	glGenBuffers(1, &coloursVboId);
-
-	if (!coloursVboId)
-	{
-		throw std::exception();
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, coloursVboId);
-
-	// Upload a copy of the data from memory into the new VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
-
-		/*
-			Create the vertex array and assign positions and colours
-		*/
-
-
-	GLuint texCoordsVboID = 0;
-
-	// Create a new VBO on the GPU and bind it
-	glGenBuffers(1, &texCoordsVboID);
-
-	if (!texCoordsVboID)
-	{
-		throw std::exception();
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, texCoordsVboID);
-
-	// Upload a copy of the data from memory into the new VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-
-	// Reset the state
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-
+GLuint vaoPrep(GLuint positionsVboId, GLuint coloursVboId, GLuint texCoordsVboID)
+{
 	GLuint vaoId = 0;
 
 	// Create a new VAO on the GPU and bind it
@@ -193,23 +101,122 @@ int main()
 
 	glBindVertexArray(0);
 
-	// ====================================== = Preparing the Shader Program ======================================
+	return vaoId;
+}
+
+GLuint preparePrimativeShapes()
+{
+	// ======================================= Preparing the Primitive Shape Data ======================================
+	const GLfloat positions[] = {
+	  -0.5f, 0.5f, 0.0f,
+	  -0.5f, -0.5f, 0.0f,
+	  0.5f, -0.5f, 0.0f,
+
+	   0.5f, -0.5f, 0.0f,
+	  0.5f, 0.5f, 0.0f,
+	  -0.5f, 0.5f, 0.0f
+	};
+
+	const GLfloat texCoords[] = {
+	  0.0f, 0.0f,
+	  0.0f, 1.0f,
+	  1.0f, 1.0f,
+
+	  1.0f, 1.0f,
+	  1.0f, 0.0f,
+	  0.0f, 0.0f
+	};
+
+	// RGBA - Vector 4
+	const GLfloat colours[] = {
+	  1.0f, 0.0f, 0.0f, 1.0f,
+	  0.0f, 1.0f, 0.0f, 1.0f,
+	  0.0f, 0.0f, 1.0f, 1.0f,
+	};
+
+
+	/*
+		Create and populate buffers
+	*/
+
+	GLuint positionsVboId = 0;
+	// Create a new VBO on the GPU and bind it
+	glGenBuffers(1, &positionsVboId);
+	if (!positionsVboId)
+	{
+		throw std::exception();
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
+	// Upload a copy of the data from memory into the new VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+	// Unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	GLuint coloursVboId = 0;
+	// Create a new VBO on the GPU and bind it
+	glGenBuffers(1, &coloursVboId);
+	if (!coloursVboId)
+	{
+		throw std::exception();
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, coloursVboId);
+	// Upload a copy of the data from memory into the new VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
+	// Unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	GLuint texCoordsVboID = 0;
+	// Create a new VBO on the GPU and bind it
+	glGenBuffers(1, &texCoordsVboID);
+	if (!texCoordsVboID)
+	{
+		throw std::exception();
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, texCoordsVboID);
+	// Upload a copy of the data from memory into the new VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+	// Reset the state
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	GLuint vaoID = vaoPrep(positionsVboId, coloursVboId, texCoordsVboID);
+
+	return vaoID;
+}
+
+GLuint vertexShaderInit()
+{
 	std::string vertContent = getFileCode("resources/vertex.txt");
 	const GLchar* vertexShaderSrc = vertContent.c_str();
-	// Create a new vertex shader, attach source code, compile it and
-	// check for errors.
+	// Create a new vertex shader, attach source code, compile it and check for errors.
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShaderId, 1, &vertexShaderSrc, NULL);
 	glCompileShader(vertexShaderId);
 	GLint success = 0;
 	glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &success);
-
-
-
 	if (!success)
 	{
 		throw std::exception();
 	}
+	return vertexShaderId;
+}
+
+
+int main()
+{
+	// Render the window using SDL
+	SDL_Window* window = renderWindow();
+
+	// prepare primative shapes, which also calles the VAO prep and passes in the Vbo ID's
+	GLuint vaoId = preparePrimativeShapes();
+
+	GLuint vertexShaderId = vertexShaderInit();
+
+	//GLuint fragmentShaderId = fragmentShaderInit();
+
+	// ====================================== = Preparing the Shader Program ======================================
+	
 
 	std::string fragmentShaderfile = getFileCode("resources/fragmentShader.txt");
 	const GLchar* fragmentShaderSrc = fragmentShaderfile.c_str();
@@ -219,6 +226,7 @@ int main()
 	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShaderId, 1, &fragmentShaderSrc, NULL);
 	glCompileShader(fragmentShaderId);
+	GLint success = 0;
 	glGetShaderiv(fragmentShaderId, GL_COMPILE_STATUS, &success);
 
 	if (!success)
@@ -302,7 +310,6 @@ int main()
 	// Bind the texture to GPU
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
-
 	// Upload the image data to the bound texyture unit in the GPU
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
@@ -314,13 +321,6 @@ int main()
 
 	// Unbind the texture because we're done with it
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-
-
-
-
-
-
 
 	// MAIN LOOP
 
