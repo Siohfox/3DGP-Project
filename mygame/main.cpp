@@ -1,6 +1,6 @@
 // Tell system that SDL and STB IMAGE is already handled
 #define SDL_MAIN_HANDLED
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 
 // Graphics libraries
 #include <SDL2/SDL.h>
@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <stb_image.h>
+#include <wavefront/wavefront.h>
 
 // System libraries
 #include <stdexcept>
@@ -15,6 +16,7 @@
 #include <istream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 // Input file to return it as a string
@@ -215,6 +217,8 @@ int main()
 
 	//GLuint fragmentShaderId = fragmentShaderInit();
 
+
+
 	// ====================================== = Preparing the Shader Program ======================================
 	
 
@@ -244,8 +248,7 @@ int main()
 	// Ensure the VAO "position" attribute stream gets set as the first position
 	// during the link.
 	glBindAttribLocation(programId, 0, "a_Position");
-
-	glBindAttribLocation(programId, 2, "a_TexCoord");
+	glBindAttribLocation(programId, 1, "a_TexCoord");
 
 	// Perform the link and check for failure
 	glLinkProgram(programId);
@@ -300,27 +303,21 @@ int main()
 	// Create a texture
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
+	if (!textureId)	{ std::cout << "ERROR: No texture ID found" << std::endl; throw std::exception();	}
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	free(data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (!textureId)
+
+	WfModel curuthers = { 0 };
+
+	if (WfModelLoad("models/curuthers/curuthers.obj", &curuthers) != 0)
 	{
-		std::cout << "ERROR: No texture ID found" << std::endl;
-		throw std::exception();
+		throw std::runtime_error("failed to load model thingy");
 	}
 
-	// Bind the texture to GPU
-	glBindTexture(GL_TEXTURE_2D, textureId);
-
-	// Upload the image data to the bound texyture unit in the GPU
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-	// Free the loaded data because it's copied to gpu now
-	free(data);
-
-	// Generate Mipmap so the texture can be mapped correctly
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	// Unbind the texture because we're done with it
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// MAIN LOOP
 
@@ -340,7 +337,7 @@ int main()
 
 		// Clear black
 		glClearColor(1, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Update buffers
 
 		// Prepare the perspective projection matrix
@@ -349,7 +346,7 @@ int main()
 
 		// Prepare the model matrix
 		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(0, 0, -2.5f));
+		model = glm::translate(model, glm::vec3(0, 0, -20.5f));
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(0, 1, 0));
 
 		// Increase the float angle so next frame the triangle rotates further
@@ -363,6 +360,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureId);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// Upload the model matrix
@@ -372,8 +370,12 @@ int main()
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
 		glm::value_ptr(projection));
 
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(curuthers.vaoId);
+		glBindTexture(GL_TEXTURE_2D, curuthers.textureId);
+
+
+		//glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
 
 		// Shape 2
 
@@ -397,12 +399,10 @@ int main()
 
 		// ======================================= SUBMIT FOR DRAWING ======================================
 		
-		// Draw 3 vertices (a triangle)
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
 		glDisable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
