@@ -19,6 +19,10 @@
 #include <vector>
 
 
+#include "Mesh.h"
+#include "Shader.h"
+#include "RenderTexture.h"
+
 // Input file to return it as a string
 std::string getFileCode(std::string fileName)
 {
@@ -55,32 +59,14 @@ SDL_Window* renderWindow()
 		throw std::runtime_error("Failed to create OpenGL context");
 	}
 
+	
+
 	return window;
 }
 
 GLuint vaoPrep(GLuint positionsVboId, GLuint coloursVboId, GLuint texCoordsVboID)
 {
 	GLuint vaoId = 0;
-
-	// Create a new VAO on the GPU and bind it
-	glGenVertexArrays(1, &vaoId);
-
-	if (!vaoId)
-	{
-		throw std::exception();
-	}
-
-	glBindVertexArray(vaoId);
-
-	// Bind the position VBO, assign it to position 0 on the bound VAO
-	// and flag it to be used
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
-
-	// This is where it's attached to the vertex array buffer
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		3 * sizeof(GLfloat), (void*)0);
-
-	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, coloursVboId);
 
@@ -143,15 +129,13 @@ GLuint preparePrimativeShapes()
 
 	GLuint positionsVboId = 0;
 	// Create a new VBO on the GPU and bind it
+
+
+
 	glGenBuffers(1, &positionsVboId);
-	if (!positionsVboId)
-	{
-		throw std::exception();
-	}
+	if (!positionsVboId) { throw std::exception(); }
 	glBindBuffer(GL_ARRAY_BUFFER, positionsVboId);
-	// Upload a copy of the data from memory into the new VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-	// Unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
@@ -215,9 +199,9 @@ int main()
 
 	GLuint vertexShaderId = vertexShaderInit();
 
-	//GLuint fragmentShaderId = fragmentShaderInit();
-
-
+	Mesh quad(0);
+	//Shader ls("resources/vertex.txt", "resources/fragmentShader.txt");
+	Shader bs("resources/basicVertexShader.txt", "resources/basicFragmentShader.txt");
 
 	// ====================================== = Preparing the Shader Program ======================================
 	
@@ -321,6 +305,8 @@ int main()
 
 	// MAIN LOOP
 
+	RenderTexture rt(256, 256);
+
 	bool quit = false;
 
 	while (!quit)
@@ -334,6 +320,12 @@ int main()
 				quit = true;
 			}
 		}
+		rt.bind();
+	
+
+
+
+		/*
 
 		// Clear black
 		glClearColor(1, 1, 1, 1);
@@ -375,7 +367,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, curuthers.textureId);
 
 
-		//glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
 
 		// Shape 2
 
@@ -397,15 +389,30 @@ int main()
 			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
 				glm::value_ptr(projection));
 
+			glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
+
 		// ======================================= SUBMIT FOR DRAWING ======================================
-		
-		glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
+		*/
 		glDisable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
+		rt.unbind();
+
+
+
+		// Draw cat
+		glClearColor(0, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(bs.id());
+		glBindVertexArray(quad.getid());
+		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
+		// Finish drawing cat
+
+		
+		
 
 		// This function just updates the window
 		SDL_GL_SwapWindow(window);
