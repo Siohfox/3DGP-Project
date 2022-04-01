@@ -305,7 +305,7 @@ int main()
 
 	// MAIN LOOP
 
-	RenderTexture rt(256, 256);
+	RenderTexture rt(1024, 1024);
 
 	bool quit = false;
 
@@ -320,17 +320,15 @@ int main()
 				quit = true;
 			}
 		}
+
+		// 1 | Start binding to render texture
+		glViewport(0, 0, 1024, 1024);
 		rt.bind();
-	
 
-
-
-		/*
-
-		// Clear black
+		// 2 | Clear black
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Update buffers
+
 
 		// Prepare the perspective projection matrix
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
@@ -349,7 +347,7 @@ int main()
 		// Instruct OpenGL to use our shader program and our VAO
 		glUseProgram(programId);
 		glBindVertexArray(vaoId);
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		glBindTexture(GL_TEXTURE_2D, curuthers.textureId);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
@@ -364,50 +362,30 @@ int main()
 
 
 		glBindVertexArray(curuthers.vaoId);
-		glBindTexture(GL_TEXTURE_2D, curuthers.textureId);
+		
 
 
 		glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
 
-		// Shape 2
 
-		// Prepare the orthographic projection matrix (reusing the variable)
-		projection = glm::ortho(0.0f, (float)600, 0.0f,
-			(float)600, 0.0f, 1.0f);
-
-			// Prepare model matrix. The scale is important because now our triangle
-			// would be the size of a single pixel when mapped to an orthographic
-			// projection.
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(100, 600 - 100, 0));
-			model = glm::scale(model, glm::vec3(100, 100, 1));
-
-			// Upload the model matrix
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-			// Upload the projection matrix
-			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-				glm::value_ptr(projection));
-
-			glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
-
-		// ======================================= SUBMIT FOR DRAWING ======================================
-		*/
 		glDisable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
+
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
+		glViewport(0, 0, 800, 600);
 		rt.unbind();
 
 
 
-		// Draw cat
+		// Draw tringl
 		glClearColor(0, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(bs.id());
 		glBindVertexArray(quad.getid());
+		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
 		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
 		// Finish drawing cat
 
