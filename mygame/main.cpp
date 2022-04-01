@@ -181,10 +181,19 @@ GLuint vertexShaderInit()
 	glCompileShader(vertexShaderId);
 	GLint success = 0;
 	glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &success);
+
 	if (!success)
 	{
+		GLint maxLength = 0;
+		glGetShaderiv(vertexShaderId, GL_INFO_LOG_LENGTH,
+			&maxLength);
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(vertexShaderId, maxLength,
+			&maxLength, &errorLog[0]);
+		std::cout << &errorLog.at(0) << std::endl;
 		throw std::exception();
 	}
+
 	return vertexShaderId;
 }
 
@@ -219,7 +228,14 @@ int main()
 
 	if (!success)
 	{
-		throw std::exception();
+			GLint maxLength = 0;
+			glGetShaderiv(fragmentShaderId, GL_INFO_LOG_LENGTH,
+				&maxLength);
+			std::vector<GLchar> errorLog(maxLength);
+			glGetShaderInfoLog(fragmentShaderId, maxLength,
+				&maxLength, &errorLog[0]);
+			std::cout << &errorLog.at(0) << std::endl;
+			throw std::exception();
 	}
 
 	// Create new shader program and attach our shader objects
@@ -233,6 +249,7 @@ int main()
 	// during the link.
 	glBindAttribLocation(programId, 0, "a_Position");
 	glBindAttribLocation(programId, 1, "a_TexCoord");
+	glBindAttribLocation(programId, 2, "a_Normal");
 
 	// Perform the link and check for failure
 	glLinkProgram(programId);
