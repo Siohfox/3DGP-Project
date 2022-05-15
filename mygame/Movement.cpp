@@ -3,17 +3,27 @@
 Movement::Movement()
 {
 	m_moveCheck = 0;
-	m_angle = 0;
+	m_quit = false;
+}
+
+Movement::~Movement()
+{
+
+}
+
+bool Movement::GetQuit()
+{
+	return m_quit;
 }
 
 
-int Movement::Move()
+int Movement::Update()
 {
 	SDL_Event event = { 0 };
 
 	while (SDL_PollEvent(&event))
 	{
-		std::cout << "potato";
+
 		switch (event.type)
 		{
 		case SDL_KEYDOWN:
@@ -36,6 +46,9 @@ int Movement::Move()
 				std::cout << "Down key pressed" << std::endl;
 				m_moveCheck = 4;
 				break;
+			case SDLK_ESCAPE:
+				m_quit = true;
+				break;
 			}
 			break;
 		case SDL_KEYUP:
@@ -45,12 +58,10 @@ int Movement::Move()
 			case SDLK_a:
 				std::cout << "Left key released" << std::endl;
 				m_moveCheck = 0;
-				m_angle = 0;
 				break;
 			case SDLK_d:
 				std::cout << "Right key released" << std::endl;
 				m_moveCheck = 0;
-				m_angle = 0;
 				break;
 			case SDLK_w:
 				std::cout << "Up key released" << std::endl;
@@ -66,6 +77,8 @@ int Movement::Move()
 			break;
 		}
 	}
+
+
 	
 
 	return m_moveCheck;

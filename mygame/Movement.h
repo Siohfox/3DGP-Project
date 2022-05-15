@@ -1,16 +1,19 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <glm/glm.hpp>
 
-struct Movement
+class Movement
 {
+public:
 	Movement();
 	~Movement();
 
-	int Move();
+	bool GetQuit();
+	int Update();
 
 private:
 	int m_moveCheck;
-	float m_angle;
+	bool m_quit;
 };
 

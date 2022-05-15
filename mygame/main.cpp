@@ -17,12 +17,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <ctime>  
 
 
 #include "Mesh.h"
 #include "Shader.h"
 #include "RenderTexture.h"
 #include "Movement.h"
+#include "Gameobject.h"
+#include "SceneObject.h"
+#include "Camera.h"
 
 SDL_Window* renderWindow() 
 {
@@ -39,9 +44,6 @@ SDL_Window* renderWindow()
 	{
 		throw std::runtime_error("Failed to create OpenGL context");
 	}
-
-	
-
 	return window;
 }
 
@@ -55,6 +57,9 @@ int main()
 	Shader ls("resources/vertex.txt", "resources/fragmentShader.txt");
 	Shader bs("resources/basicVertexShader.txt", "resources/basicFragmentShader.txt");
 
+	Camera* cam = new Camera();
+
+	//glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)600 / (float)600, 0.1f, 100.f);
 	GLint modelLoc = glGetUniformLocation(ls.id(), "u_Model");
 	GLint projectionLoc = glGetUniformLocation(ls.id(), "u_Projection");
 
@@ -64,34 +69,45 @@ int main()
 
 	SDL_GetWindowSize(window, &width, &height);
 
-	
-
-		/*
-			Loading system data
-		*/
 
 	// Define width and height
 	int w = 0;
 	int h = 0;
 
-	unsigned char* data = stbi_load("image.png", &w, &h, NULL, 4);
+	//unsigned char* data = stbi_load("image.png", &w, &h, NULL, 4);
 
-	if (!data)
-	{
-		std::cout << "ERROR: No image data found" << std::endl;
-		throw std::exception("No image data");
-	}
+	//if (!data)
+	//{
+	//	std::cout << "ERROR: No image data found" << std::endl;
+	//	throw std::exception("No image data");
+	//}
+
+	SceneObject* curuthers = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0.0f), "models/curuthers/curuthers.obj");
+	SceneObject* sphere = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0.0f), "models/sphere/sphere.obj");
 
 
-
-	WfModel curuthers = { 0 };
+	/*WfModel curuthers = { 0 };
 
 	if (WfModelLoad("models/curuthers/curuthers.obj", &curuthers) != 0)
 	{
 		throw std::runtime_error("failed to load model thingy");
+	}*/
+
+
+	WfModel cobblestone = { 0 };
+
+	if (WfModelLoad("models/cobblestone/untitled.obj", &cobblestone) != 0)
+	{
+		throw std::runtime_error("failed to load model thingy");
 	}
 
+	/*WfModel sphere = { 0 };
 
+	if (WfModelLoad("models/sphere/sphere.obj", &sphere) != 0)
+	{
+		throw std::runtime_error("failed to load model thingy");
+	}
+*/
 	// MAIN LOOP
 
 	RenderTexture rt(1024, 1024);
@@ -100,35 +116,31 @@ int main()
 	int moveCheck = 0;
 	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(0, 0, -20.5f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
+
+	curuthers->TranslateObject(glm::vec3(0, 0, -20.5f));
+
+	glm::mat4 oherModel(1.0f);
+	oherModel = glm::translate(oherModel, glm::vec3(0, 5.0f, -20.5f));
 
 
 	Movement* movement = new Movement();
+	// Prepare the perspective projection matrix
 
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);  
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+
+	glm::mat4 temp{ 0.0f };
 	while (!quit)
 	{
-		SDL_Event event;
-		if (event.type = quit)
-		{
-			quit = true;
-		}
 
-		moveCheck = movement->Move();
-
-		// 1 | Start binding to render texture
-		glViewport(0, 0, 1024, 1024);
-		rt.bind();
-
-		// 2 | Clear black
-		glClearColor(1, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-		// Prepare the perspective projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
-			(float)600 / (float)600, 0.1f, 100.f);
-
-		// Prepare the model matrix
-
+		quit = movement->GetQuit();
+		moveCheck = movement->Update();
 
 		switch (moveCheck)
 		{
@@ -142,52 +154,77 @@ int main()
 			break;
 		case 3:
 			model += glm::translate(model, glm::vec3(0, 0, 0.5f));
+			temp += glm::translate(cam->GetProjection(), glm::vec3(0, 0, 0.5f));
+			cam->SetProjection(temp);
 			break;
 		case 4:
 			model += glm::translate(model, glm::vec3(0, 0, -0.5f));
+			temp += glm::translate(cam->GetProjection(), glm::vec3(0, 0, -0.5f));
+			cam->SetProjection(temp);
 			break;
 		default:
 			break;
 		}
 
-		// Increase the float angle so next frame the triangle rotates further
-
-		// Make sure the current program is bound
-#
+		// 1 | Start binding to render texture
+		glViewport(0, 0, 1024, 1024);
+		rt.bind();
+		// 2 | Clear black
+		glClearColor(1, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Instruct OpenGL to use our shader program and our VAO
 		glUseProgram(ls.id());
 		glBindVertexArray(quad.getid());
-		glBindTexture(GL_TEXTURE_2D, curuthers.textureId);
+		glBindTexture(GL_TEXTURE_2D, curuthers->GetModelTextureID());
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		// Upload the model matrix
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
 		// Upload the projection matrix
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-		glm::value_ptr(projection));
-
-
-		glBindVertexArray(curuthers.vaoId);
-		glDrawArrays(GL_TRIANGLES, 0, curuthers.vertexCount);
-
-
-		glDisable(GL_BLEND);
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-
+		glm::value_ptr(cam->GetProjection()));
+		glBindVertexArray(curuthers->GetModelVaoID());
+		glDrawArrays(GL_TRIANGLES, 0, curuthers->GetModelVertexCount());
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
 		glViewport(0, 0, 800, 600);
-
 		rt.unbind();
+		// Draw tringl
+		glClearColor(0, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(bs.id());
+		glBindVertexArray(quad.getid());
+		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
+		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
+
+		// Finish drawing cat
 
 
+		
 
+		// 1 | Start binding to render texture
+		glViewport(0, 0, 1024, 1024);
+		rt.bind();
+		// Instruct OpenGL to use our shader program and our VAO
+		glUseProgram(ls.id());
+		glBindVertexArray(quad.getid());
+		glBindTexture(GL_TEXTURE_2D, curuthers->GetModelTextureID());
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// Upload the model matrix
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(oherModel));
+		// Upload the projection matrix
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam->GetProjection()));
+		glBindVertexArray(curuthers->GetModelVaoID());
+		glDrawArrays(GL_TRIANGLES, 0, curuthers->GetModelVertexCount());
+		
+		// Reset the state
+		glBindVertexArray(0);
+		glUseProgram(0);
+		glViewport(0, 0, 800, 600);
+		rt.unbind();
 		// Draw tringl
 		glClearColor(0, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,9 +234,43 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
 		// Finish drawing cat
 
-		
-		
 
+
+		// 1 | Start binding to render texture
+		glViewport(0, 0, 1024, 1024);
+		rt.bind();
+		// Instruct OpenGL to use our shader program and our VAO
+		glUseProgram(ls.id());
+		glBindVertexArray(quad.getid());
+		glBindTexture(GL_TEXTURE_2D, sphere->GetModelTextureID());
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// Upload the model matrix
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(oherModel));
+		// Upload the projection matrix
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
+			glm::value_ptr(cam->GetProjection()));
+		glBindVertexArray(sphere->GetModelVaoID());
+		glDrawArrays(GL_TRIANGLES, 0, sphere->GetModelVertexCount());
+
+		// Reset the state
+		glBindVertexArray(0);
+		glUseProgram(0);
+		glViewport(0, 0, 800, 600);
+		rt.unbind();
+		// Draw tringl
+		glClearColor(0, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(bs.id());
+		glBindVertexArray(quad.getid());
+		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
+		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
+		// Finish drawing cat
+
+
+
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
 		// This function just updates the window
 		SDL_GL_SwapWindow(window);
 	}
