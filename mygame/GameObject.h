@@ -2,6 +2,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <wavefront/wavefront.h>
 
 class GameObject abstract
 {

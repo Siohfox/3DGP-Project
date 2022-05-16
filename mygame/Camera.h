@@ -8,6 +8,8 @@ public:
 	~Camera();
 
 	void SetProjection(glm::mat4 projection) { m_camera = projection; }
+	void LookAtModel(glm::vec3 model);
+
 	glm::mat4 GetProjection() { return m_camera; }
 private:
 	glm::mat4 m_camera;

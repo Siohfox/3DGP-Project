@@ -1,6 +1,5 @@
 #include "RenderTexture.h"
 #include <exception>
-#include <wavefront/wavefront.h>
 
 RenderTexture::RenderTexture(int _width, int _height)
 {

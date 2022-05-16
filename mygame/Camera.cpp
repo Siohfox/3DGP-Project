@@ -15,11 +15,16 @@ Camera::Camera(glm::vec3 position, glm::vec3 orientation, float angle, glm::vec3
 	m_orientation = orientation;
 	m_identity = glm::mat4{ 1.0f };
 
-	m_identity = glm::translate(m_identity, position);
+	m_identity = glm::translate(m_identity, m_position);
 	m_identity = glm::rotate(m_identity, angle, rotAxis);
 }
 
 
 Camera::~Camera()
 {
+}
+
+void Camera::LookAtModel(glm::vec3 model)
+{
+	glm::lookAt(m_position, model, glm::vec3(0.0f, 1.0f, 0.0f));
 }

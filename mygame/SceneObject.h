@@ -2,7 +2,6 @@
 #include "GameObject.h"
 #include <iostream>
 #include <glm/glm.hpp>
-#include <wavefront/wavefront.h>
 
 class SceneObject :	public GameObject
 {

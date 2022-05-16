@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <stb_image.h>
-#include <wavefront/wavefront.h>
+//#include <wavefront/wavefront.h>
 
 // System libraries
 #include <stdexcept>
@@ -82,46 +82,15 @@ int main()
 	//	throw std::exception("No image data");
 	//}
 
-	SceneObject* curuthers = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0.0f), "models/curuthers/curuthers.obj");
-	SceneObject* sphere = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0.0f), "models/sphere/sphere.obj");
+	SceneObject* curuthers = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0, 1, 0), "models/curuthers/curuthers.obj");
+	//SceneObject* sphere = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0, 1, 0), "models/sphere/sphere.obj");
 
-
-	/*WfModel curuthers = { 0 };
-
-	if (WfModelLoad("models/curuthers/curuthers.obj", &curuthers) != 0)
-	{
-		throw std::runtime_error("failed to load model thingy");
-	}*/
-
-
-	WfModel cobblestone = { 0 };
-
-	if (WfModelLoad("models/cobblestone/untitled.obj", &cobblestone) != 0)
-	{
-		throw std::runtime_error("failed to load model thingy");
-	}
-
-	/*WfModel sphere = { 0 };
-
-	if (WfModelLoad("models/sphere/sphere.obj", &sphere) != 0)
-	{
-		throw std::runtime_error("failed to load model thingy");
-	}
-*/
 	// MAIN LOOP
 
 	RenderTexture rt(1024, 1024);
 
 	bool quit = false;
 	int moveCheck = 0;
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(0, 0, -20.5f));
-	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
-
-	curuthers->TranslateObject(glm::vec3(0, 0, -20.5f));
-
-	glm::mat4 oherModel(1.0f);
-	oherModel = glm::translate(oherModel, glm::vec3(0, 5.0f, -20.5f));
 
 
 	Movement* movement = new Movement();
@@ -135,7 +104,6 @@ int main()
 	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
 
-	glm::mat4 temp{ 0.0f };
 	while (!quit)
 	{
 
@@ -145,22 +113,21 @@ int main()
 		switch (moveCheck)
 		{
 		case 1:
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(0, 1, 0));
+			curuthers->RotateObject(angle, glm::vec3(0.0f, 1.0f, 0.0f));
 			angle = 1.0f;
 			break;
 		case 2:
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(0, 1, 0));
+			curuthers->RotateObject(angle, glm::vec3(0.0f, 1.0f, 0.0f));
 			angle = -1.0f;
 			break;
 		case 3:
-			model += glm::translate(model, glm::vec3(0, 0, 0.5f));
-			temp += glm::translate(cam->GetProjection(), glm::vec3(0, 0, 0.5f));
-			cam->SetProjection(temp);
+			curuthers->TranslateObject(glm::vec3(0.0f, 0.0f, 0.5f));
+			cam->LookAtModel(curuthers->GetPos());
 			break;
 		case 4:
-			model += glm::translate(model, glm::vec3(0, 0, -0.5f));
-			temp += glm::translate(cam->GetProjection(), glm::vec3(0, 0, -0.5f));
-			cam->SetProjection(temp);
+			curuthers->TranslateObject(glm::vec3(0.0f, 0.0f, -0.5f));
+			cam->SetProjection(curuthers->GetIdentity());
+			cam->LookAtModel(curuthers->GetPos());
 			break;
 		default:
 			break;
@@ -181,45 +148,11 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		// Upload the model matrix
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		// Upload the projection matrix
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-		glm::value_ptr(cam->GetProjection()));
-		glBindVertexArray(curuthers->GetModelVaoID());
-		glDrawArrays(GL_TRIANGLES, 0, curuthers->GetModelVertexCount());
-		// Reset the state
-		glBindVertexArray(0);
-		glUseProgram(0);
-		glViewport(0, 0, 800, 600);
-		rt.unbind();
-		// Draw tringl
-		glClearColor(0, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(bs.id());
-		glBindVertexArray(quad.getid());
-		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
-		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
-
-		// Finish drawing cat
-
-
-		
-
-		// 1 | Start binding to render texture
-		glViewport(0, 0, 1024, 1024);
-		rt.bind();
-		// Instruct OpenGL to use our shader program and our VAO
-		glUseProgram(ls.id());
-		glBindVertexArray(quad.getid());
-		glBindTexture(GL_TEXTURE_2D, curuthers->GetModelTextureID());
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		// Upload the model matrix
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(oherModel));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(curuthers->GetIdentity()));
 		// Upload the projection matrix
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam->GetProjection()));
 		glBindVertexArray(curuthers->GetModelVaoID());
 		glDrawArrays(GL_TRIANGLES, 0, curuthers->GetModelVertexCount());
-		
 		// Reset the state
 		glBindVertexArray(0);
 		glUseProgram(0);
@@ -232,38 +165,7 @@ int main()
 		glBindVertexArray(quad.getid());
 		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
 		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
-		// Finish drawing cat
 
-
-
-		// 1 | Start binding to render texture
-		glViewport(0, 0, 1024, 1024);
-		rt.bind();
-		// Instruct OpenGL to use our shader program and our VAO
-		glUseProgram(ls.id());
-		glBindVertexArray(quad.getid());
-		glBindTexture(GL_TEXTURE_2D, sphere->GetModelTextureID());
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		// Upload the model matrix
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(oherModel));
-		// Upload the projection matrix
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-			glm::value_ptr(cam->GetProjection()));
-		glBindVertexArray(sphere->GetModelVaoID());
-		glDrawArrays(GL_TRIANGLES, 0, sphere->GetModelVertexCount());
-
-		// Reset the state
-		glBindVertexArray(0);
-		glUseProgram(0);
-		glViewport(0, 0, 800, 600);
-		rt.unbind();
-		// Draw tringl
-		glClearColor(0, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(bs.id());
-		glBindVertexArray(quad.getid());
-		glBindTexture(GL_TEXTURE_2D, rt.getTexture());
-		glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
 		// Finish drawing cat
 
 
