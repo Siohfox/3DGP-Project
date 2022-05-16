@@ -3,6 +3,7 @@
 
 struct Mesh
 {
+	Mesh();
 	Mesh(int _type);
 
 	GLuint getid();

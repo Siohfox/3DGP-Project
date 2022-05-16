@@ -23,4 +23,3 @@ protected:
 	glm::vec3 m_orientation;
 	glm::mat4 m_identity;
 };
-
