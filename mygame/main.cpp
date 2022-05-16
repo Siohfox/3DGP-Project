@@ -82,7 +82,7 @@ int main()
 	//	throw std::exception("No image data");
 	//}
 
-	SceneObject* curuthers = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0, 1, 0), "models/curuthers/curuthers.obj");
+	SceneObject* curuthers = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 180, glm::vec3(0, 1, 0), "models/curuthers/curuthers.obj");
 	//SceneObject* sphere = new SceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), 0, glm::vec3(0, 1, 0), "models/sphere/sphere.obj");
 
 	// MAIN LOOP
@@ -122,12 +122,11 @@ int main()
 			break;
 		case 3:
 			curuthers->TranslateObject(glm::vec3(0.0f, 0.0f, 0.5f));
-			cam->LookAtModel(curuthers->GetPos());
+			cam->TranslateObject(glm::vec3(0.0f, 0.0f, 0.5f));
 			break;
 		case 4:
 			curuthers->TranslateObject(glm::vec3(0.0f, 0.0f, -0.5f));
-			cam->SetProjection(curuthers->GetIdentity());
-			cam->LookAtModel(curuthers->GetPos());
+			cam->TranslateObject(glm::vec3(0.0f, 0.0f, -0.5f));
 			break;
 		default:
 			break;
@@ -168,6 +167,39 @@ int main()
 
 		// Finish drawing cat
 
+
+		//// 1 | Start binding to render texture
+		//glViewport(0, 0, 1024, 1024);
+		//rt.bind();
+		//// 2 | Clear black
+		//glClearColor(1, 1, 1, 1);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//// Instruct OpenGL to use our shader program and our VAO
+		//glUseProgram(ls.id());
+		//glBindVertexArray(quad.getid());
+		//glBindTexture(GL_TEXTURE_2D, sphere->GetModelTextureID());
+		//glEnable(GL_CULL_FACE);
+		//glEnable(GL_BLEND);
+		//glEnable(GL_DEPTH_TEST);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//// Upload the model matrix
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sphere->GetIdentity()));
+		//// Upload the projection matrix
+		//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam->GetProjection()));
+		//glBindVertexArray(sphere->GetModelVaoID());
+		//glDrawArrays(GL_TRIANGLES, 0, sphere->GetModelVertexCount());
+		//// Reset the state
+		//glBindVertexArray(0);
+		//glUseProgram(0);
+		//glViewport(0, 0, 800, 600);
+		//rt.unbind();
+		//// Draw tringl
+		//glClearColor(0, 1, 1, 1);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glUseProgram(bs.id());
+		//glBindVertexArray(quad.getid());
+		//glBindTexture(GL_TEXTURE_2D, rt.getTexture());
+		//glDrawArrays(GL_TRIANGLES, 0, quad.vert_count());
 
 
 		glDisable(GL_BLEND);
