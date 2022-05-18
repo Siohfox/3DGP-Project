@@ -1,8 +1,9 @@
 #pragma once
 #include <GL/glew.h>
 
-struct Mesh
+class Mesh
 {
+public:
 	Mesh();
 	Mesh(int _type);
 

@@ -76,8 +76,3 @@ Shader::Shader(const std::string& _vertPath, const std::string& _fragPath)
 	glDetachShader(m_progId, fragmentShaderId);
 	glDeleteShader(fragmentShaderId);
 }
-
-GLuint Shader::id()
-{
-	return m_progId;
-}

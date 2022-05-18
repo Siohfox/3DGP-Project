@@ -2,11 +2,12 @@
 #include <GL/glew.h>
 #include <string>
 
-struct Shader
+class Shader
 {
+public:
 	Shader(const std::string& _vertPath, const std::string& _fragPath);
 
-	GLuint id();
+	GLuint id() {return m_progId; }
 
 private:
 	GLuint m_progId;

@@ -12,17 +12,20 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <ctime>  
+#include <random>  
 
+#include "GameObject.h"
 
-#include "Mesh.h"
-#include "Shader.h"
-#include "RenderTexture.h"
-#include "Movement.h"
-#include "Gameobject.h"
-#include "SceneObject.h"
-#include "Camera.h"
+// Forward declare to save space
+class Enemy;
+class Shader;
+class Camera;
+class RenderTexture;
+class Mesh;
+class Movement;
+class SceneObject;
+class Camera;
+
 
 class Game
 {
@@ -34,9 +37,12 @@ public:
 
 	SDL_Window* SDLWindowInit();
 
-	void CreateSceneObject(glm::vec3 pos, glm::vec3 orient, float angle, glm::vec3 rotAxis, const char* filePath);
+
+	void CreateSceneObject(glm::vec3 pos, glm::vec3 scale, glm::vec3 orient, float angle, glm::vec3 rotAxis, const char* filePath, GameObject::ObjectType type);
 
 	void Render(int i);
+
+	
 
 
 private:
@@ -59,7 +65,8 @@ private:
 
 	bool m_quit;
 	int m_moveCheck;
-	
+
+	bool m_randGen;
 };
 
 
