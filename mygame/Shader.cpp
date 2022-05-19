@@ -4,6 +4,10 @@
 #include <string>
 #include <stdexcept>
 
+
+/** A method for loading the shaders from files
+
+*/
 std::string load_file(const std::string _path)
 {
 	std::ifstream file(_path.c_str());
@@ -37,10 +41,7 @@ Shader::Shader(const std::string& _vertPath, const std::string& _fragPath)
 	glCompileShader(vertexShaderId);
 	GLint success = 0;
 	glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		throw std::runtime_error("Failed to compile vertex shader");
-	}
+	if (!success) { throw std::runtime_error("Failed to compile vertex shader"); }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fragment Shader

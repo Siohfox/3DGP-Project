@@ -5,8 +5,10 @@
 
 int main()
 {
+	// Create instance of a game
 	std::unique_ptr<Game> game = std::make_unique<Game>();
 
+	// Go through game update -- quit back here when game is over
 	game->Update();
 
 	return 0;
