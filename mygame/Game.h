@@ -53,6 +53,7 @@ private:
 
 	std::vector<SceneObject*> m_sceneObjects;
 	Camera* m_cam;
+	Camera* m_orthoCam;
 	Movement* m_movement;
 
 	Mesh* m_quad;

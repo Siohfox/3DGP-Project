@@ -13,7 +13,8 @@
 Game::Game()
 {
 	m_window = SDLWindowInit();
-	m_cam = new Camera(glm::vec3(0.0f, -10.0f, -7.0f), glm::vec3(10.0f, 0.0f, 0.0f), 40.0f, glm::vec3 (1, 0, 0));
+	m_cam = new Camera(glm::vec3(0.0f, -10.0f, -7.0f), glm::vec3(10.0f, 0.0f, 0.0f), 40.0f, glm::vec3 (1, 0, 0), true);
+	m_orthoCam = new Camera(glm::vec3(0.0f, -10.0f, -7.0f), glm::vec3(10.0f, 0.0f, 0.0f), 40.0f, glm::vec3(1, 0, 0), false);
 	m_movement = new Movement();
 
 
@@ -44,12 +45,12 @@ Game::Game()
 	CreateSceneObject(glm::vec3(40.0f, 0.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/sphere/sphere.obj", GameObject::ObjectType::Enemy);
 	CreateSceneObject(glm::vec3(45.0f, 0.0f, -16.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/sphere/sphere.obj", GameObject::ObjectType::Enemy);
 
-	m_sceneObjects.at(5)->SetPos(glm::vec3(4.0f, 0.0f, -24.0f));
-	m_sceneObjects.at(5)->SetPos(glm::vec3(0.0f, 0.0f, -24.0f));
-	m_sceneObjects.at(5)->SetPos(glm::vec3(-4.0f, 0.0f, -24.0f));
-	m_sceneObjects.at(5)->SetPos(glm::vec3(4.0f, 0.0f, -24.0f));
-	m_sceneObjects.at(5)->SetPos(glm::vec3(0.0f, 0.0f, -24.0f));
-	m_sceneObjects.at(5)->SetPos(glm::vec3(4.0f, 0.0f, -24.0f));
+	m_sceneObjects.at(5)->SetPos(glm::vec3(4.0f, 1.0f, -24.0f));
+	m_sceneObjects.at(6)->SetPos(glm::vec3(0.0f, 1.0f, -24.0f));
+	m_sceneObjects.at(7)->SetPos(glm::vec3(-4.0f, 1.0f, -24.0f));
+	m_sceneObjects.at(8)->SetPos(glm::vec3(4.0f, 1.0f, -24.0f));
+	m_sceneObjects.at(9)->SetPos(glm::vec3(0.0f, 1.0f, -24.0f));
+	m_sceneObjects.at(10)->SetPos(glm::vec3(-4.0f, 1.0f, -24.0f));
 }
 
 Game::~Game()
@@ -122,6 +123,9 @@ void Game::Render(int i)
 	glBindVertexArray(m_quad->getid());
 	glBindTexture(GL_TEXTURE_2D, m_renderTexture->getTexture());
 	glDrawArrays(GL_TRIANGLES, 0, m_quad->vert_count());
+
+
+
 }
 
 
@@ -182,11 +186,13 @@ void Game::Update()
 						}
 
 
-						if ((m_sceneObjects.at(0)->GetPos().z - (23.5f + i + 5.0f)) < (m_sceneObjects.at(i + 5)->GetPos().z + 1.5f) && (m_sceneObjects.at(0)->GetPos().z) - (23.5f + i + 5.0f) > (m_sceneObjects.at(i + 5)->GetPos().z - 1.5f))
+						if ((m_sceneObjects.at(0)->GetPos().z - (23.5f + i * 5.0f)) < (m_sceneObjects.at(i + 5)->GetPos().z + 1.5f) && (m_sceneObjects.at(0)->GetPos().z - (23.5f + i * 5.0f)) > (m_sceneObjects.at(i + 5)->GetPos().z - 1.5f))
 						{
 							if ((m_sceneObjects.at(0)->GetPos().x < (m_sceneObjects.at(i + 5)->GetPos().x + 2.0f) && (m_sceneObjects.at(0)->GetPos().x) >(m_sceneObjects.at(i + 5)->GetPos().x - 2.0f)))
 							{
 								std::cout << "collision with sphere " << i << " at " << glm::to_string(m_sceneObjects.at(i + 5)->GetPos()) << std::endl;
+								std::cout << "Enemy 1 position: " << glm::to_string(m_sceneObjects.at(i + 5)->GetPos()) << std::endl;
+								std::cout << "Player pos: " << glm::to_string(m_sceneObjects.at(0)->GetPos()) << std::endl;
 							}
 						}
 					}

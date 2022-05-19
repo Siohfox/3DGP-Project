@@ -7,9 +7,18 @@ Camera::Camera()
 	m_orientation = glm::vec3{ 0.0f };
 }
 
-Camera::Camera(glm::vec3 position, glm::vec3 orientation, float angle, glm::vec3 rotAxis)
+Camera::Camera(glm::vec3 position, glm::vec3 orientation, float angle, glm::vec3 rotAxis, bool perspective)
 {
-	m_identity = glm::perspective(glm::radians(45.0f), (float)600 / (float)600, 0.1f, 100.f);
+
+	if (perspective)
+	{
+		m_identity = glm::perspective(glm::radians(45.0f), (float)600 / (float)600, 0.1f, 100.f);
+	}
+	if (!perspective)
+	{
+		m_identity = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.0f, 1.0f);
+	}
+
 	m_position = position;
 	m_orientation = orientation;
 	m_identity = glm::translate(m_identity, m_position);
@@ -20,9 +29,4 @@ Camera::Camera(glm::vec3 position, glm::vec3 orientation, float angle, glm::vec3
 Camera::~Camera()
 {
 
-}
-
-void Camera::LookAtModel(glm::vec3 model)
-{
-	glm::lookAt(m_position, model, glm::vec3(0.0f, 1.0f, 0.0f));
 }
