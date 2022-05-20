@@ -17,11 +17,11 @@ public:
 
 	/** A fuction to bind the fbo Id
 	*/
-	void bind();
+	void Bind();
 
 	/** A fuction to unbind the fbo Id
 	*/
-	void unbind();
+	void Unbind();
 
 
 	/** Get the texture Id

@@ -28,8 +28,8 @@ Game::Game()
 	m_renderTexture = new RenderTexture(1024,1024);
 
 	// Init model locations
-	m_modelLocation = glGetUniformLocation(m_lightShader->shaderProgramId(), "u_Model");
-	m_projectionLocation = glGetUniformLocation(m_lightShader->shaderProgramId(), "u_Projection");
+	m_modelLocation = glGetUniformLocation(m_lightShader->ShaderProgramId(), "u_Model");
+	m_projectionLocation = glGetUniformLocation(m_lightShader->ShaderProgramId(), "u_Projection");
 
 	// Init member values
 	m_quit = false;
@@ -37,14 +37,16 @@ Game::Game()
 	m_randGen = false;
 
 
-	// Create all scene objects
+	/** Create all scene objects
+	*/ 
+	// Create player
 	CreateSceneObject(glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3 (1.0f,1.0f,1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/curuthers/curuthers.obj", GameObject::ObjectType::Player);
-
+	// Create Floors
 	CreateSceneObject(glm::vec3(-20.0f, -2.5f, -20.0f), glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/floor/woodfloor.obj", GameObject::ObjectType::Floor);
 	CreateSceneObject(glm::vec3(-10.0f, -2.5f, -20.0f), glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/floor/woodfloor.obj", GameObject::ObjectType::Floor);
 	CreateSceneObject(glm::vec3(0.0f , -2.5f, -20.0f), glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/floor/woodfloor.obj", GameObject::ObjectType::Floor);
 	CreateSceneObject(glm::vec3(10.0f, -2.5f, -20.0f), glm::vec3(2.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/floor/woodfloor.obj", GameObject::ObjectType::Floor);
-
+	// Create Enemies
 	CreateSceneObject(glm::vec3(20.0f, 0.0f, -24.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/sphere/sphere.obj", GameObject::ObjectType::Enemy);
 	CreateSceneObject(glm::vec3(25.0f, 0.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/sphere/sphere.obj", GameObject::ObjectType::Enemy);
 	CreateSceneObject(glm::vec3(30.0f, 0.0f, -16.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f), 90, glm::vec3(0, 1, 0), "models/sphere/sphere.obj", GameObject::ObjectType::Enemy);
@@ -73,6 +75,7 @@ SDL_Window* Game::SDLWindowInit()
 	int w = 800, h = 600;
 	SDL_Window* window = SDL_CreateWindow("OpenGL Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
+	// Create opengl context window and check for errors
 	if (!SDL_GL_CreateContext(window))
 	{
 		throw std::runtime_error("Failed to create OpenGL context");
@@ -81,7 +84,7 @@ SDL_Window* Game::SDLWindowInit()
 	// Initialise glew and check for errors
 	if (glewInit() != GLEW_OK)
 	{
-		throw std::runtime_error("Failed to create OpenGL context");
+		throw std::runtime_error("Failed to initialise glew");
 	}
 	return window;
 }
@@ -98,7 +101,7 @@ void Game::Render(int i)
 {
 	// 1 | Start binding to render texture
 	glViewport(0, 0, 1024, 1024);
-	m_renderTexture->bind();
+	m_renderTexture->Bind();
 	// 2 | Clear black
 	if (i < 1)
 	{
@@ -107,8 +110,8 @@ void Game::Render(int i)
 	}
 	
 	// Instruct OpenGL to use our shader program and our VAO
-	glUseProgram(m_lightShader->shaderProgramId());
-	glBindVertexArray(m_quad->getid());
+	glUseProgram(m_lightShader->ShaderProgramId());
+	glBindVertexArray(m_quad->GetVaoID());
 	glBindTexture(GL_TEXTURE_2D, m_sceneObjects.at(i)->GetModelTextureID());
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -122,16 +125,16 @@ void Game::Render(int i)
 	glBindVertexArray(0);
 	glUseProgram(0);
 	glViewport(0, 0, 800, 600);
-	m_renderTexture->unbind();
+	m_renderTexture->Unbind();
 
 
 	// Draw triangles
 	glClearColor(0, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(m_basicShader->shaderProgramId());
-	glBindVertexArray(m_quad->getid());
+	glUseProgram(m_basicShader->ShaderProgramId());
+	glBindVertexArray(m_quad->GetVaoID());
 	glBindTexture(GL_TEXTURE_2D, m_renderTexture->GetTexture());
-	glDrawArrays(GL_TRIANGLES, 0, m_quad->vert_count());
+	glDrawArrays(GL_TRIANGLES, 0, m_quad->VertCount());
 
 
 

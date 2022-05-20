@@ -12,12 +12,12 @@ public:
 	/** Get the vao ID
 	* @return the vao ID as a GLuint
 	*/
-	GLuint getid() { return m_vaoId; }
+	GLuint GetVaoID() { return m_vaoId; }
 
 	/** Get the vertex count
 	* @return the vertex count as an integer
 	*/
-	int vert_count();
+	int VertCount();
 
 private:
 

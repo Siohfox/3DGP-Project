@@ -31,19 +31,15 @@ int Movement::Update()
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_a:
-				std::cout << "Left key pressed" << std::endl;
 				m_moveCheck = 1;
 				break;
 			case SDLK_d:
-				std::cout << "Right key pressed" << std::endl;
 				m_moveCheck = 2;
 				break;
 			case SDLK_w:
-				std::cout << "Up key pressed" << std::endl;
 				m_moveCheck = 3;
 				break;
 			case SDLK_s:
-				std::cout << "Down key pressed" << std::endl;
 				m_moveCheck = 4;
 				break;
 			case SDLK_ESCAPE:
@@ -56,19 +52,15 @@ int Movement::Update()
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_a:
-				std::cout << "Left key released" << std::endl;
 				m_moveCheck = 0;
 				break;
 			case SDLK_d:
-				std::cout << "Right key released" << std::endl;
 				m_moveCheck = 0;
 				break;
 			case SDLK_w:
-				std::cout << "Up key released" << std::endl;
 				m_moveCheck = 0;
 				break;
 			case SDLK_s:
-				std::cout << "Down key released" << std::endl;
 				m_moveCheck = 0;
 				break;
 			}
@@ -77,9 +69,5 @@ int Movement::Update()
 			break;
 		}
 	}
-
-
-	
-
 	return m_moveCheck;
 }

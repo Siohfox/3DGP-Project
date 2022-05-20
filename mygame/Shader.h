@@ -14,7 +14,7 @@ public:
 	/** Get shader program Id
 	* @return shader's program Id
 	*/
-	GLuint shaderProgramId() {return m_progId; }
+	GLuint ShaderProgramId() {return m_progId; }
 
 private:
 	/** Program Id

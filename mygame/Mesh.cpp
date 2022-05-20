@@ -43,7 +43,7 @@ Mesh::Mesh()
 	glBindVertexArray(0);
 }
 
-int Mesh::vert_count()
+int Mesh::VertCount()
 {
 	return 6;
 }

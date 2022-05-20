@@ -6,9 +6,8 @@
 
 
 /** A method for loading the shaders from files
-
 */
-std::string load_file(const std::string _path)
+std::string LoadFile(const std::string _path)
 {
 	std::ifstream file(_path.c_str());
 
@@ -35,7 +34,7 @@ Shader::Shader(const std::string& _vertPath, const std::string& _fragPath)
 	// Vertex Shader
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-	std::string src = load_file(_vertPath);
+	std::string src = LoadFile(_vertPath);
 	const char* psrc = src.c_str();
 	glShaderSource(vertexShaderId, 1, &psrc, NULL);
 	glCompileShader(vertexShaderId);
@@ -47,7 +46,7 @@ Shader::Shader(const std::string& _vertPath, const std::string& _fragPath)
 	// Fragment Shader
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-	src = load_file(_fragPath);
+	src = LoadFile(_fragPath);
 	psrc = src.c_str();
 	glShaderSource(fragmentShaderId, 1, &psrc, NULL);
 	glCompileShader(fragmentShaderId);
